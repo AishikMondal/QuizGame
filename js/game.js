@@ -6,6 +6,62 @@ let selectedOption = null;
 let quizCompleted = false;
 let playerId = null;
 let playerName = '';
+let timeLeft = 30;
+let timer;
+
+// Local questions fallback
+const localQuestions = [
+    {
+        question: "What is the capital of France?",
+        correct_answer: "Paris",
+        incorrect_answers: ["London", "Berlin", "Madrid"]
+    },
+    {
+        question: "Which planet is known as the Red Planet?",
+        correct_answer: "Mars",
+        incorrect_answers: ["Venus", "Jupiter", "Saturn"]
+    },
+    {
+        question: "What is the largest mammal?",
+        correct_answer: "Blue Whale",
+        incorrect_answers: ["Elephant", "Giraffe", "Hippopotamus"]
+    },
+    {
+        question: "In which year did World War II end?",
+        correct_answer: "1945",
+        incorrect_answers: ["1939", "1941", "1943"]
+    },
+    {
+        question: "What is the chemical symbol for gold?",
+        correct_answer: "Au",
+        incorrect_answers: ["Ag", "Fe", "Hg"]
+    },
+    {
+        question: "Who painted the Mona Lisa?",
+        correct_answer: "Leonardo da Vinci",
+        incorrect_answers: ["Pablo Picasso", "Vincent van Gogh", "Michelangelo"]
+    },
+    {
+        question: "What is the largest ocean on Earth?",
+        correct_answer: "Pacific Ocean",
+        incorrect_answers: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean"]
+    },
+    {
+        question: "Which country is home to the kangaroo?",
+        correct_answer: "Australia",
+        incorrect_answers: ["Brazil", "South Africa", "New Zealand"]
+    },
+    {
+        question: "What is the main component of the Sun?",
+        correct_answer: "Hydrogen",
+        incorrect_answers: ["Helium", "Oxygen", "Carbon"]
+    },
+    {
+        question: "How many continents are there?",
+        correct_answer: "7",
+        incorrect_answers: ["5", "6", "8"]
+    }
+];
 
 // DOM elements
 const questionElement = document.getElementById('question');
@@ -18,33 +74,79 @@ const resultContainer = document.getElementById('resultContainer');
 const finalScoreElement = document.getElementById('finalScore');
 const playerNameDisplay = document.getElementById('playerNameDisplay');
 const playerScoreElement = document.getElementById('playerScore');
+const playerRankElement = document.getElementById('playerRank');
+const timeDisplay = document.getElementById('time');
+const errorMessage = document.getElementById('errorMessage');
 
 // Initialize quiz
 document.addEventListener('DOMContentLoaded', () => {
     // Get player info from session
     playerId = sessionStorage.getItem('currentPlayerId');
-    const players = JSON.parse(localStorage.getItem('quizPlayers')) || [];
-    const player = players.find(p => p.id === playerId);
+    playerName = sessionStorage.getItem('currentPlayerName') || 'Player';
     
-    if (player) {
-        playerName = player.name;
-        playerNameDisplay.textContent = player.name;
-    }
-    
-    fetchQuestions();
+    playerNameDisplay.textContent = playerName;
+    loadQuestions();
 });
 
-// Fetch questions from Open Trivia DB API
-async function fetchQuestions() {
+async function loadQuestions() {
     try {
-        const response = await fetch('https://opentdb.com/api.php?amount=10&type=multiple');
-        const data = await response.json();
-        questions = data.results;
+        // Try to fetch from API first
+        const apiQuestions = await fetchQuestionsFromAPI();
+        if (apiQuestions.length > 0) {
+            questions = apiQuestions;
+            errorMessage.style.display = 'none';
+        } else {
+            // Fallback to local questions
+            questions = localQuestions;
+            errorMessage.style.display = 'flex';
+            console.log("Using local questions as fallback");
+        }
         showQuestion();
     } catch (error) {
-        console.error('Error fetching questions:', error);
-        questionElement.textContent = "Failed to load questions. Please try again later.";
+        console.error("Error loading questions:", error);
+        // Use local questions if there's any error
+        questions = localQuestions;
+        errorMessage.style.display = 'flex';
+        showQuestion();
     }
+}
+
+async function fetchQuestionsFromAPI() {
+    try {
+        const response = await fetch('https://opentdb.com/api.php?amount=10&type=multiple');
+        if (!response.ok) throw new Error("API request failed");
+        const data = await response.json();
+        return data.results || [];
+    } catch (error) {
+        console.error("Error fetching from API:", error);
+        return [];
+    }
+}
+
+// Timer functions
+function startTimer() {
+    clearInterval(timer);
+    timeLeft = 30;
+    updateTimerDisplay();
+    timeDisplay.classList.remove('timer-warning');
+    
+    timer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 5) {
+            timeDisplay.classList.add('timer-warning');
+        }
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    timeDisplay.textContent = timeLeft;
 }
 
 // Display current question
@@ -65,7 +167,7 @@ function showQuestion() {
     
     // Shuffle answers
     optionsElement.innerHTML = '';
-    shuffleArray(allAnswers).forEach((answer, index) => {
+    shuffleArray(allAnswers).forEach((answer) => {
         const optionElement = document.createElement('div');
         optionElement.classList.add('option');
         optionElement.textContent = decodeHTML(answer);
@@ -75,6 +177,7 @@ function showQuestion() {
     
     nextBtn.disabled = true;
     selectedOption = null;
+    startTimer();
 }
 
 // Select an option
@@ -89,11 +192,12 @@ function selectOption(optionElement, answer) {
     optionElement.classList.add('selected');
     selectedOption = answer;
     nextBtn.disabled = false;
+    clearInterval(timer);
 }
 
 // Move to next question
 function nextQuestion() {
-    if (selectedOption === null) return;
+    if (selectedOption === null && timeLeft > 0) return;
     
     // Check if answer is correct
     const correctAnswer = questions[currentQuestion].correct_answer;
@@ -111,7 +215,7 @@ function nextQuestion() {
         option.style.cursor = 'default';
     });
     
-    if (selectedOption === correctAnswer) {
+    if (selectedOption === correctAnswer || (timeLeft <= 0 && selectedOption === null)) {
         score += 10;
         playerScoreElement.textContent = `Score: ${score}`;
     }
@@ -139,6 +243,11 @@ function endQuiz() {
         if (playerIndex !== -1) {
             players[playerIndex].score = Math.max(players[playerIndex].score, score);
             localStorage.setItem('quizPlayers', JSON.stringify(players));
+            
+            // Calculate rank
+            const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+            const rank = sortedPlayers.findIndex(p => p.id === playerId) + 1;
+            playerRankElement.textContent = `Rank: ${rank} of ${sortedPlayers.length}`;
         }
     }
     

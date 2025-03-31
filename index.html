@@ -3,19 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
+    <title>Titan Quiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Quiz Game!</h1>
-        <div class="player-form">
-            <input type="text" id="playerName" placeholder="Enter your name" required>
-            <button onclick="startGame()">Start Game</button>
+        <div class="header">
+            <i class="fas fa-crown crown-icon"></i>
+            <h1>Titan <span>Quiz</span></h1>
+            <i class="fas fa-crown crown-icon"></i>
         </div>
+        
+        <div class="player-form">
+            <div class="input-group">
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="playerName" placeholder="Enter your name" required>
+            </div>
+            <button onclick="startGame()">
+                <i class="fas fa-play"></i> Start Game
+            </button>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-trophy"></i>
+                <h3>Leaderboard</h3>
+                <p>Compete with others</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>Challenging</h3>
+                <p>Test your knowledge</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Fast Paced</h3>
+                <p>Quick 10-question rounds</p>
+            </div>
+        </div>
+        
         <div class="leaderboard">
-            <h2>Leaderboard</h2>
+            <h2><i class="fas fa-trophy"></i> Leaderboard</h2>
             <div id="leaderboardList"></div>
+            <div class="view-all" onclick="showFullLeaderboard()">
+                View All <i class="fas fa-chevron-down"></i>
+            </div>
         </div>
     </div>
 

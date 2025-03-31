@@ -21,7 +21,7 @@ function updateLeaderboard() {
     
     leaderboardList.innerHTML = '';
     
-    players.slice(0, 10).forEach(player => {
+    players.slice(0, 5).forEach(player => {
         const entry = document.createElement('div');
         entry.className = 'player-entry';
         entry.innerHTML = `
@@ -30,6 +30,26 @@ function updateLeaderboard() {
         `;
         leaderboardList.appendChild(entry);
     });
+}
+
+// Show full leaderboard
+function showFullLeaderboard() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    const players = getPlayerData().sort((a, b) => b.score - a.score);
+    
+    leaderboardList.innerHTML = '';
+    
+    players.forEach(player => {
+        const entry = document.createElement('div');
+        entry.className = 'player-entry';
+        entry.innerHTML = `
+            <span class="player-name">${player.name}</span>
+            <span class="player-score">${player.score} pts</span>
+        `;
+        leaderboardList.appendChild(entry);
+    });
+    
+    document.querySelector('.view-all').style.display = 'none';
 }
 
 // Start game function
@@ -58,6 +78,7 @@ function startGame() {
     
     // Store current player ID in session
     sessionStorage.setItem('currentPlayerId', player.id);
+    sessionStorage.setItem('currentPlayerName', player.name);
     
     // Redirect to game
     window.location.href = 'game.html';

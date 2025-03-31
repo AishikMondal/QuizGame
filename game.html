@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
+    <title>Titan Quiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/game.css">
 </head>
 <body>
     <div class="quiz-container">
         <div class="header">
-            <div class="player-info">
-                <span id="playerNameDisplay"></span>
-                <span id="playerScore">Score: 0</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar"></div>
+            <i class="fas fa-arrow-left back-icon" onclick="window.location.href='index.html'"></i>
+            <h2>Titan <span>Quiz</span></h2>
+            <div class="timer">
+                <i class="fas fa-clock"></i>
+                <span id="time">30</span>s
             </div>
         </div>
         
+        <div class="player-info">
+            <span id="playerNameDisplay"></span>
+            <span id="playerScore">Score: 0</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
         <div id="quizContent">
+            <div class="error-message" id="errorMessage" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Couldn't load questions from server. Using local questions instead.</span>
+            </div>
+            
             <div class="question-container">
                 <div class="question-number" id="questionNumber"></div>
                 <div class="question" id="question"></div>
@@ -27,14 +44,22 @@
             <div class="options" id="options"></div>
             
             <div class="controls">
-                <button id="nextBtn">Next Question</button>
+                <button id="nextBtn">
+                    <i class="fas fa-arrow-right"></i> Next Question
+                </button>
             </div>
         </div>
         
         <div class="result-container" id="resultContainer">
-            <h2>Quiz Completed!</h2>
-            <div class="final-score" id="finalScore"></div>
-            <button onclick="window.location.href='index.html'">Back to Main Menu</button>
+            <div class="result-box">
+                <i class="fas fa-trophy trophy-icon"></i>
+                <h2>Quiz Completed!</h2>
+                <div class="final-score" id="finalScore"></div>
+                <div class="player-rank" id="playerRank"></div>
+                <button onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i> Back to Main Menu
+                </button>
+            </div>
         </div>
     </div>
 
