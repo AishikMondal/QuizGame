@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quizeeeeeeeeeee</title>
-    <link rel="stylesheet" href="game1.css" />
+    <title>Quiz Game</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <h1>Welcome to Quizeeeeeeeeeee!</h1>
-    <form action="level.html" method="post">
-    <p>Test your knowledge and have fun!</p>
-    <button><a href="./quiz.html">Start Game</a></button>
-    
-    <script>
-        function startGame() {
-            window.location.href = './quiz.html';
-        }
-    </script>
-    </form>
+    <div class="container">
+        <h1>Welcome to Quiz Game!</h1>
+        <div class="player-form">
+            <input type="text" id="playerName" placeholder="Enter your name" required>
+            <button onclick="startGame()">Start Game</button>
+        </div>
+        <div class="leaderboard">
+            <h2>Leaderboard</h2>
+            <div id="leaderboardList"></div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
